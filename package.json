@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "rm -rf ./frontend/dist && npm --prefix ./frontend run build && NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development node --watch index.js",
     "test": "NODE_ENV=test node --test",
-    "start:test": "NODE_ENV=test node --watch index.js"
+    "start:test": "NODE_ENV=test node --watch index.js",
+    "build:prod": "npm run clear-modules && npm run install-fresh-modules && npm run build:frontend",
+    "build:frontend": "npm run clear-dist && npm --prefix ./frontend run build",
+    "clear-modules": "rm -rf node_modules && rm -rf ./frontend/node_modules",
+    "clear-dist": "rm -rf ./frontend/dist",
+    "install-fresh-modules": "npm --prefix ./frontend install && npm install",
+    "start:prod": "npm run build:prod && NODE_ENV=production node index.js"
   },
   "author": "mrhorst",
   "license": "ISC",
