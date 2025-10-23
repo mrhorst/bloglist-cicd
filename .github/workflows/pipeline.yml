@@ -7,3 +7,41 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize]
+
+env:
+  SHOULD_RELEASE: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+
+jobs:
+  ready_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: install dependencies
+        run: npm install
+      - name: build code
+        run: npm run build:prod
+      - name: test code
+        run: npm run test
+  deploy_prod:
+    needs: [ready_check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: trigger render deploy
+        if: ${{ env.SHOULD_RELEASE == 'true' }}
+        run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_KEY }}?key=${{ secrets.RENDER_API_KEY }}
+
+  tag_release:
+    needs: [deploy_prod]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump version and push tag
+        if: ${{ env.SHOULD_RELEASE == 'true' }}
+        uses: anothrNick/github-tag-action@1.75.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          TAG_PREFIX: v
