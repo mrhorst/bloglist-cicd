@@ -325,8 +325,6 @@ describe('When sending HTTP requests...', async () => {
 
     const blogs = await api.get('/api/blogs')
     const blog = blogs.body.find((b) => {
-      console.log('HERE WE ARE LOGGING B: ', b)
-      console.log('HERE WE ARE LOGGING USER[0]: ', user[0])
       return b.user.id === user[0]._id.toString()
     })
 
