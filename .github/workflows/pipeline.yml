@@ -12,6 +12,7 @@ env:
   SHOULD_RELEASE: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
   TEST_MONGODB_URI: ${{ secrets.MONGODB_URI }}
   NODE_ENV: test
+  SECRET: ${{ secrets.SECRET }}
 jobs:
   ready_check:
     runs-on: ubuntu-latest
