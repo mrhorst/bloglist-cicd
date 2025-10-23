@@ -10,7 +10,8 @@ on:
 
 env:
   SHOULD_RELEASE: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
-
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  NODE_ENV: test
 jobs:
   ready_check:
     runs-on: ubuntu-latest
@@ -19,12 +20,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: create .env
-        run: |
-          {
-            echo "MONGODB_URI=${{ secrets.MONGODB_URI }}"
-            echo "NODE_ENV=test"
-          } > .env
       - name: install dependencies
         run: npm install
       - name: build code
