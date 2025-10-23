@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: '22'
       - name: dummy test
-        run: echo "url is $URL"
+        run: echo "url is $MONGODB_URI"
       - name: install dependencies
         run: npm install
       - name: build code
