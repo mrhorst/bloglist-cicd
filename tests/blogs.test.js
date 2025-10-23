@@ -1,9 +1,9 @@
-const { test, after, describe, beforeEach } = require('node:test')
+const { before, test, after, describe, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const supertest = require('supertest')
-const app = require('../app')
+const { app, dbReady } = require('../app')
 
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
@@ -61,19 +61,24 @@ const blogs = [
   },
 ]
 
+before(async () => {
+  await dbReady
+})
+
 describe("When there's initially 6 blogs in the db..", async () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(blogs)
   })
-  const initialBlogs = await listHelper.blogsInDb()
 
-  test('the initial list of blogs have a total of 36 likes..', () => {
-    const totalLikes = listHelper.totalLikes(initialBlogs)
+  test('the initial list of blogs have a total of 36 likes..', async () => {
+    const initialBlogs = await listHelper.blogsInDb()
+    const totalLikes = await listHelper.totalLikes(initialBlogs)
     assert.strictEqual(totalLikes, 36)
   })
 
-  test('author with most blogs', () => {
+  test('author with most blogs', async () => {
+    const initialBlogs = await listHelper.blogsInDb()
     const authorWithMostBlogs = listHelper.authorWithMostBlogs(initialBlogs)
     assert.deepStrictEqual(authorWithMostBlogs, {
       author: 'Robert C. Martin',
@@ -81,7 +86,8 @@ describe("When there's initially 6 blogs in the db..", async () => {
     })
   })
 
-  test('author with most likes', () => {
+  test('author with most likes', async () => {
+    const initialBlogs = await listHelper.blogsInDb()
     const authorWithMostLikes = listHelper.authorWithMostLikes(initialBlogs)
     assert.deepStrictEqual(authorWithMostLikes, {
       author: 'Edsger W. Dijkstra',
@@ -89,7 +95,8 @@ describe("When there's initially 6 blogs in the db..", async () => {
     })
   })
 
-  test('return the favorite blog, which is the one with most likes (12)', () => {
+  test('return the favorite blog, which is the one with most likes (12)', async () => {
+    const initialBlogs = await listHelper.blogsInDb()
     const favoriteBlog = listHelper.favoriteBlog(initialBlogs)
     assert.deepStrictEqual(favoriteBlog.likes, 12)
   })
@@ -99,13 +106,14 @@ describe("When there's initially 6 blogs in the db..", async () => {
     assert.deepStrictEqual(result, 0)
   })
 
-  test('return the least favorite blog', () => {
+  test('return the least favorite blog', async () => {
+    const initialBlogs = await listHelper.blogsInDb()
     const leastFavorite = listHelper.leastFavorite(initialBlogs)
     assert.deepStrictEqual(leastFavorite.likes, blogs[4].likes)
   })
 })
 
-describe('When sending HTTP requests...', () => {
+describe('When sending HTTP requests...', async () => {
   beforeEach(async () => {
     const users = await listHelper.usersInDb()
     const root = users.find((user) => user.username === 'root')

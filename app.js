@@ -11,7 +11,7 @@ const logger = require('./utils/logger')
 
 const app = express()
 
-mongoose
+const dbReady = mongoose
   .connect(config.MONGODB_URI)
   .then(() => {
     logger.info('connected to MongoDB')
@@ -36,4 +36,8 @@ if (process.env.NODE_ENV === 'test') {
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
-module.exports = app
+if (process.env.NODE_ENV === 'test') {
+  module.exports = { app, dbReady }
+} else {
+  module.exports = app
+}
