@@ -319,16 +319,19 @@ describe('When sending HTTP requests...', async () => {
       .post('/api/login')
       .send({ username: 'root', password: 'secret' })
 
-    const token = await loginResponse.body.token
+    const token = loginResponse.body.token
+    const username = loginResponse.body.username
 
-    const user = await User.find({ username: loginResponse.body.username })
+    const user = await User.find({ username })
 
-    const blogs = await api.get('/api/blogs')
+    const response = await api.get('/api/blogs')
 
-    console.log(user[0]._id.toString())
+    const blogs = response.body
 
-    const blog = blogs.body.find((b) => {
-      console.log(b)
+    console.log('blogs: ', blogs)
+
+    const blog = blogs.find((b) => {
+      console.log('blog: ', b)
       const userId = b.user.id
       const userFoundInDb = user[0]
       return userId === userFoundInDb._id.toString()
