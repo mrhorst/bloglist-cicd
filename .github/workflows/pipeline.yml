@@ -21,10 +21,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: install dependencies
-        run: npm install
-      - name: build code
-        run: npm run build:prod
+          cache: 'npm'
+      - name: clear modules
+        run: npm run clear-modules
+
+      - name: install deps
+        run: npm run install-fresh-modules
+
+      - name: build frontend for production
+        run: npm run build:ci
+
       - name: test code
         run: npm run test
   deploy_prod:
@@ -33,7 +39,11 @@ jobs:
     steps:
       - name: trigger render deploy
         if: ${{ env.SHOULD_RELEASE == 'true' }}
-        run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_KEY }}?key=${{ secrets.RENDER_API_KEY }}
+        run: curl -fsSL https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_KEY }}?key=${{ secrets.RENDER_API_KEY }}
+
+      - name: successful deploy
+        if: ${{ success() && env.SHOULD_RELEASE == 'true' }}
+        run: echo "deployment successful! check app on render for logs, if needed"
 
   tag_release:
     needs: [deploy_prod]
