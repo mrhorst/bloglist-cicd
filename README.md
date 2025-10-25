@@ -1,3 +1,6 @@
+Link to the other repository:
+https://github.com/mrhorst/full-stack-open-pokedex/
+
 # Bloglist
 
 A simple Bloglist app. The backend is built from scratch with Express. This repo was adapted for Full Stack Open Part 11 and includes a small CI/CD pipeline using GitHub Actions. It’s for learning only, and you'll probably find some mistakes here and there.
