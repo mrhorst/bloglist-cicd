@@ -87,7 +87,9 @@ const Blog = ({
                 like
               </button>
             </div>
-            <div>User: {blog.user.name}</div>
+            <div>
+              User: {blog.user.name ? blog.user.name : blog.user.username}
+            </div>
             <button
               style={
                 user.username === blog.user.username

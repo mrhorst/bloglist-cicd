@@ -1,5 +1,6 @@
 const { before, test, after, describe, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const supertest = require('supertest')
@@ -115,17 +116,25 @@ describe("When there's initially 6 blogs in the db..", async () => {
 
 describe('When sending HTTP requests...', async () => {
   beforeEach(async () => {
-    const users = await listHelper.usersInDb()
-    const root = users.find((user) => user.username === 'root')
+    await User.deleteMany({})
+    await Blog.deleteMany({})
+    await Blog.insertMany(blogs)
 
-    const blogs = await Blog.find({})
+    const passwordHash = await bcrypt.hash('secret', 10)
+    const root = await new User({ username: 'root', passwordHash }).save()
 
-    for (const blog of blogs) {
-      if (blog.user === undefined) {
-        blog.user = root.id.toString()
-        await blog.save()
-      }
-    }
+    await Blog.updateMany(
+      { $or: [{ user: null }, { user: { $exists: false } }] },
+      { $set: { user: root._id.toString() } }
+    )
+
+    const ownedBlogs = await Blog.find({ user: root._id.toString() }).select(
+      '_id'
+    )
+
+    const blogIds = ownedBlogs.map((b) => b._id)
+
+    await User.updateOne({ _id: root._id }, { $set: { blogs: blogIds } })
   })
   test('GET returns the correct amount of blog posts', async () => {
     const allBlogsFromDb = await Blog.find({})
@@ -328,10 +337,7 @@ describe('When sending HTTP requests...', async () => {
 
     const blogs = response.body
 
-    console.log('blogs: ', blogs)
-
     const blog = blogs.find((b) => {
-      console.log('blog: ', b)
       const userId = b.user.id
       const userFoundInDb = user[0]
       return userId === userFoundInDb._id.toString()
