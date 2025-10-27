@@ -19,9 +19,7 @@ describe("when there's only the 'root' user in the database", () => {
     await User.deleteMany({})
 
     const passwordHash = await bcrypt.hash('secret', 10)
-    const user = new User({ username: 'root', passwordHash })
-
-    await user.save()
+    await new User({ username: 'root', passwordHash }).save()
   })
 
   test('username must be at least 3 characters long', async () => {
@@ -32,7 +30,6 @@ describe("when there's only the 'root' user in the database", () => {
     }
     const response = await api.post('/api/users').send(user).expect(400)
     const usersAtEnd = await helper.usersInDb()
-
     assert(
       response.body.error.includes('shorter than the minimum allowed length')
     )
