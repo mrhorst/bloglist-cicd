@@ -1,36 +1,45 @@
-Link to the other repository:
-https://github.com/mrhorst/full-stack-open-pokedex/
+# Bloglist CI/CD
 
-# Bloglist
+A Full Stack Open Part 11 project focused on testing and deploying a small full-stack application through GitHub Actions.
 
-A simple Bloglist app. The backend is built from scratch with Express. This repo was adapted for Full Stack Open Part 11 and includes a small CI/CD pipeline using GitHub Actions. It’s for learning only, and you'll probably find some mistakes here and there.
+The application has an Express and MongoDB backend, a React frontend, authentication, and API tests.
 
-## Tech
+## Pipeline
 
-- Node.js + Express
-- MongoDB (Mongoose)
-- GitHub Actions (CI/CD)
-- Supertest (HTTP tests)
+On pull requests and pushes to `main`, the workflow:
 
-## Scripts
+1. Installs the backend and frontend dependencies
+2. Builds the React frontend
+3. Runs the backend test suite
+4. Triggers a Render deployment after a successful push to `main`
+5. Creates a patch release tag
 
-- `dev`: start the server in development with file watching.
-- `test`: run the Node.js test runner.
-- `start:test`: start the server in test mode (with watching).
-- `build:frontend`: build the frontend into `frontend/dist`.
-- `build:prod`: clean and reinstall modules, then build the frontend for production.
-- `build:ci`: CI build for the frontend (production mode).
-- `clear-modules`: remove backend and frontend node_modules.
-- `clear-dist`: remove `frontend/dist`.
-- `install-fresh-modules`: reinstall backend and frontend dependencies.
-- `start:prod`: build for production and start the server.
+Deployment can be skipped by including `#skip` in the commit message.
 
-Note: these scripts are intentionally specific because I was testing different setup and deployment scenarios.
+## Local development
 
-## CI/CD
+Install both sets of dependencies:
 
-The pipeline installs deps, runs tests, builds the frontend, and can deploy. It’s intentionally simple to learn the basics.
+```bash
+npm install
+npm --prefix frontend install
+```
 
-## Disclaimer
+Run the backend in development:
 
-This app has minimal practical use. It exists to practice backend fundamentals and CI/CD.
+```bash
+npm run dev
+```
+
+Run the tests and build the frontend:
+
+```bash
+npm test
+npm run build:frontend
+```
+
+The backend expects `MONGODB_URI` and `SECRET` environment variables.
+
+## Course context
+
+This repository contains my work for the CI/CD section of the University of Helsinki's Full Stack Open course. The rest of my course exercises are in [mrhorst/fullstackopen](https://github.com/mrhorst/fullstackopen).
